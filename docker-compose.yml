@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pixel38-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: pixel38
+      POSTGRES_PASSWORD: pixel38
+      POSTGRES_DB: pixel38
+    volumes:
+      - pixel38_pgdata:/var/lib/postgresql/data
+
+volumes:
+  pixel38_pgdata:
