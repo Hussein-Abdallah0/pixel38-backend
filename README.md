@@ -1,4 +1,5 @@
 AI tools used: Cursor (agent mode) for code generation, Claude for planning/architecture guidance and the Figma MCP workflow
+
 Time spent: Approximately 10 hours. Prioritized core functionality (auth, CRUD, homepage) over full polish given the time constraint. Not yet tested end-to-end.
 
 # Pixel38 Backend
