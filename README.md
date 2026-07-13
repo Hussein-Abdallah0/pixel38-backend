@@ -1,98 +1,270 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Pixel38 Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+REST API for the [Pixel38 wood products website and CMS](../PROJECT_BRIEF.md). Built with **NestJS**, **PostgreSQL**, and **Prisma**. Public GET endpoints serve website content; protected write endpoints power the admin dashboard.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Prerequisites
 
-## Description
+- **Node.js** 18+ (LTS recommended)
+- **npm** 9+
+- **Docker** (recommended for local PostgreSQL) or an existing PostgreSQL 16 instance
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Setup
 
-## Project setup
+### 1. Install dependencies
 
 ```bash
-$ npm install
+cd backend
+npm install
 ```
 
-## Compile and run the project
+### 2. Configure environment variables
+
+Copy the example env file and edit values as needed:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cp .env.example .env
 ```
 
-## Run tests
+See [Environment variables](#environment-variables) below for details on each variable.
+
+### 3. Start PostgreSQL
+
+**Option A — Docker (recommended)**
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+docker compose up -d
 ```
 
-## Deployment
+This starts PostgreSQL 16 on `localhost:5432` with the credentials defined in `docker-compose.yml` (`pixel38` / `pixel38`, database `pixel38`).
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+**Option B — Existing PostgreSQL**
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Create a database and update `DATABASE_URL` and `DIRECT_URL` in `.env` to point at your instance.
+
+### 4. Run database migrations
+
+Generate the Prisma client and apply migrations:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run prisma:generate
+npm run prisma:migrate
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+`prisma:migrate` runs `prisma migrate dev`, which applies pending migrations in `prisma/migrations/` and keeps your local schema in sync.
 
-## Resources
+### 5. Seed the database (optional)
 
-Check out a few resources that may come in handy when working with NestJS:
+Populate the database with sample homepage content, services, products, and a default admin user:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npm run prisma:seed
+```
 
-## Support
+Default admin credentials (from `prisma/seed.ts`):
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Field    | Value               |
+| -------- | ------------------- |
+| Email    | `admin@pixel38.com` |
+| Password | `admin12345`        |
 
-## Stay in touch
+### 6. Start the API
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+# Development (watch mode)
+npm run start:dev
 
-## License
+# Production build
+npm run build
+npm run start:prod
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+The server listens on `http://localhost:3001` by default (configurable via `PORT`).
+
+### 7. Explore the API
+
+Interactive Swagger documentation is available at:
+
+```
+http://localhost:3001/api
+```
+
+Use **POST /auth/login** to obtain an access token, then click **Authorize** in Swagger and paste the `accessToken` as a Bearer token for protected endpoints.
+
+## Environment variables
+
+| Variable                 | Required | Default                 | Description                                                                           |
+| ------------------------ | -------- | ----------------------- | ------------------------------------------------------------------------------------- |
+| `DATABASE_URL`           | Yes      | —                       | PostgreSQL connection string used by Prisma at runtime                                |
+| `DIRECT_URL`             | Yes      | —                       | Direct PostgreSQL connection for migrations (same as `DATABASE_URL` for local Docker) |
+| `JWT_ACCESS_SECRET`      | Yes      | —                       | Secret for signing access tokens (use a strong random string, 32+ characters)         |
+| `JWT_REFRESH_SECRET`     | Yes      | —                       | Secret for signing refresh tokens (must differ from access secret)                    |
+| `JWT_ACCESS_EXPIRATION`  | No       | `15m`                   | Access token lifetime (e.g. `15m`, `1h`)                                              |
+| `JWT_REFRESH_EXPIRATION` | No       | `7d`                    | Refresh token lifetime (e.g. `7d`, `30d`)                                             |
+| `PORT`                   | No       | `3001`                  | HTTP port the NestJS server binds to                                                  |
+| `CORS_ORIGINS`           | No       | `http://localhost:3000` | Comma-separated list of allowed frontend origins                                      |
+| `FRONTEND_URL`           | No       | —                       | Single-origin shorthand; used only if `CORS_ORIGINS` is unset                         |
+
+Example `.env` (matches Docker Compose defaults):
+
+```env
+DATABASE_URL="postgresql://pixel38:pixel38@localhost:5432/pixel38?schema=public"
+DIRECT_URL="postgresql://pixel38:pixel38@localhost:5432/pixel38?schema=public"
+
+JWT_ACCESS_SECRET="change-me-access-secret-min-32-characters"
+JWT_REFRESH_SECRET="change-me-refresh-secret-min-32-characters"
+JWT_ACCESS_EXPIRATION="15m"
+JWT_REFRESH_EXPIRATION="7d"
+
+PORT=3001
+CORS_ORIGINS=http://localhost:3000
+```
+
+## Database setup (Prisma)
+
+### Schema
+
+The data model lives in `prisma/schema.prisma` and covers:
+
+- **User** — admin accounts with bcrypt-hashed passwords and refresh tokens
+- **HeroSection** — singleton homepage hero (fixed id `homepage-hero`)
+- **Banner**, **TextSection**, **HomepageImage** — ordered, publishable homepage content
+- **Service** — services displayed on the public site
+- **Product** / **ProductImage** — wood products with sortable image galleries
+
+### Common commands
+
+```bash
+# Regenerate Prisma Client after schema changes
+npm run prisma:generate
+
+# Create and apply a new migration (development)
+npm run prisma:migrate
+
+# Apply migrations in production/CI (no prompts)
+npx prisma migrate deploy
+
+# Reset database and re-apply all migrations (destructive)
+npx prisma migrate reset
+
+# Seed sample data
+npm run prisma:seed
+
+# Open Prisma Studio (visual DB browser)
+npx prisma studio
+```
+
+### First-time setup flow
+
+```bash
+docker compose up -d          # start Postgres
+npm run prisma:generate     # generate @prisma/client
+npm run prisma:migrate        # apply prisma/migrations/* to the database
+npm run prisma:seed           # optional: load demo content + admin user
+```
+
+Migrations are version-controlled under `prisma/migrations/`. The initial migration (`20260711172915_init`) creates all tables, indexes, and the `UserRole` enum.
+
+## Architecture overview
+
+### High-level design
+
+```
+┌─────────────┐     REST (JSON)      ┌──────────────────────────────────┐
+│  Next.js    │ ◄──────────────────► │  NestJS API (port 3001)          │
+│  Frontend   │   JWT on write ops   │  Swagger at /api                 │
+└─────────────┘                      └──────────────┬───────────────────┘
+                                                    │ Prisma
+                                                    ▼
+                                       ┌────────────────────────┐
+                                       │  PostgreSQL            │
+                                       └────────────────────────┘
+```
+
+- **Public reads** — GET endpoints for homepage, services, and products are marked `@Public()` and require no authentication.
+- **Protected writes** — POST, PATCH, DELETE endpoints require a valid JWT access token. A global `JwtAuthGuard` enforces this by default; individual routes opt out with `@Public()`.
+- **Token flow** — Access tokens (short-lived) authenticate API requests. Refresh tokens (long-lived, hashed in the database) rotate via `POST /auth/refresh`.
+
+### Folder structure
+
+```
+backend/
+├── prisma/
+│   ├── schema.prisma          # Data model
+│   ├── migrations/            # Versioned SQL migrations
+│   ├── seed.ts                # Database seeder
+│   └── seed-homepage-data.ts  # Static seed content
+├── src/
+│   ├── main.ts                # Bootstrap: CORS, validation, Swagger
+│   ├── app.module.ts          # Root module — wires all feature modules
+│   ├── auth/                  # JWT authentication
+│   ├── homepage/              # Homepage CMS (hero, banners, text, images)
+│   ├── services/              # Services CRUD
+│   ├── products/              # Products + product images CRUD
+│   ├── prisma/                # Global PrismaService wrapper
+│   ├── common/                # Shared DTOs, utils, Swagger examples
+│   └── config/                # App-level config (e.g. CORS)
+├── test/                      # E2E tests
+├── docker-compose.yml         # Local PostgreSQL
+└── .env.example               # Environment variable template
+```
+
+### Why modules are organized this way
+
+NestJS uses a **feature-module** pattern: each business domain is a self-contained module with its own controller(s), service(s), and DTOs. This keeps concerns isolated and makes the dependency graph explicit.
+
+| Module             | Responsibility                                        | Why separate                                                                                                                                                                                                           |
+| ------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **PrismaModule**   | Database access via `PrismaService`                   | Marked `@Global()` so any feature module can inject `PrismaService` without importing PrismaModule everywhere. Single connection lifecycle for the app.                                                                |
+| **AuthModule**     | Login, logout, token refresh, Passport JWT strategies | Authentication is cross-cutting but has enough moving parts (strategies, guards, decorators, token utils) to warrant its own module. Exports `AuthService` if other modules need auth helpers.                         |
+| **HomepageModule** | Hero, banners, text sections, homepage images         | Homepage content is a distinct CMS domain with its own aggregate response shape (`GET /homepage`). Grouping these entities avoids a bloated root module.                                                               |
+| **ServicesModule** | Service listings CRUD                                 | Independent content type with its own lifecycle and ordering — matches the CMS "Services" admin section.                                                                                                               |
+| **ProductsModule** | Products + product images                             | Product images are a nested resource (`/products/:id/images`). Both controllers share the same domain and live in one module rather than splitting into two, since image operations always depend on a parent product. |
+| **common/**        | `ReorderDto`, `slug.util`, Swagger examples           | Not a NestJS module — shared code used across features without creating circular imports between feature modules.                                                                                                      |
+| **config/**        | CORS origin parsing                                   | Environment-driven configuration kept out of `main.ts` for testability and clarity.                                                                                                                                    |
+
+### Request lifecycle
+
+1. Request hits a controller route.
+2. Global `ValidationPipe` validates and transforms the request body/query (class-validator DTOs).
+3. Global `JwtAuthGuard` checks for `@Public()` — if absent, validates the Bearer access token via `JwtStrategy`.
+4. Controller delegates to a service, which uses `PrismaService` for database operations.
+5. Response is serialized (Swagger decorators document the shape).
+
+### Key files
+
+| File                                            | Role                                                                          |
+| ----------------------------------------------- | ----------------------------------------------------------------------------- |
+| `src/app.module.ts`                             | Registers all modules, enables global config, applies `JwtAuthGuard` app-wide |
+| `src/auth/guards/jwt-auth.guard.ts`             | Global guard with `@Public()` bypass                                          |
+| `src/auth/decorators/public.decorator.ts`       | Marks routes that skip authentication                                         |
+| `src/auth/decorators/current-user.decorator.ts` | Injects the authenticated `User` into handler params                          |
+| `src/prisma/prisma.service.ts`                  | Extends `PrismaClient`, handles connect/disconnect lifecycle                  |
+
+## Scripts reference
+
+| Command                   | Description                       |
+| ------------------------- | --------------------------------- |
+| `npm run start:dev`       | Start in watch mode (development) |
+| `npm run build`           | Compile TypeScript to `dist/`     |
+| `npm run start:prod`      | Run compiled production build     |
+| `npm run prisma:generate` | Generate Prisma Client            |
+| `npm run prisma:migrate`  | Run `prisma migrate dev`          |
+| `npm run prisma:seed`     | Seed database with sample data    |
+| `npm run test`            | Unit tests                        |
+| `npm run test:e2e`        | End-to-end tests                  |
+| `npm run lint`            | ESLint with auto-fix              |
+
+## API endpoints (summary)
+
+| Tag            | Base path                     | Public reads                   | Protected writes                                        |
+| -------------- | ----------------------------- | ------------------------------ | ------------------------------------------------------- |
+| Auth           | `/auth`                       | `POST /login`, `POST /refresh` | `POST /logout`, `GET /me`                               |
+| Homepage       | `/homepage`                   | `GET /`                        | `PATCH /`                                               |
+| Services       | `/services`                   | `GET /`, `GET /:id`            | `POST /`, `PATCH /:id`, `DELETE /:id`, `PATCH /reorder` |
+| Products       | `/products`                   | `GET /`, `GET /:id`            | `POST /`, `PATCH /:id`, `DELETE /:id`, `PATCH /reorder` |
+| Product Images | `/products/:productId/images` | `GET /`                        | `POST /`, `PATCH /:id`, `DELETE /:id`, `PATCH /reorder` |
+
+Full request/response schemas and examples are in Swagger at `/api`.
+
+AI tools used: Cursor (agent mode) for code generation, Claude for planning/architecture guidance and the Figma MCP workflow
+Time spent: Approximately 10 hours. Prioritized core functionality (auth, CRUD, homepage) over full polish given the time constraint. Not yet tested end-to-end.
