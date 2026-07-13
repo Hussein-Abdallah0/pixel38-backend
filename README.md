@@ -1,3 +1,6 @@
+AI tools used: Cursor (agent mode) for code generation, Claude for planning/architecture guidance and the Figma MCP workflow
+Time spent: Approximately 10 hours. Prioritized core functionality (auth, CRUD, homepage) over full polish given the time constraint. Not yet tested end-to-end.
+
 # Pixel38 Backend
 
 REST API for the [Pixel38 wood products website and CMS](../PROJECT_BRIEF.md). Built with **NestJS**, **PostgreSQL**, and **Prisma**. Public GET endpoints serve website content; protected write endpoints power the admin dashboard.
@@ -265,6 +268,3 @@ NestJS uses a **feature-module** pattern: each business domain is a self-contain
 | Product Images | `/products/:productId/images` | `GET /`                        | `POST /`, `PATCH /:id`, `DELETE /:id`, `PATCH /reorder` |
 
 Full request/response schemas and examples are in Swagger at `/api`.
-
-AI tools used: Cursor (agent mode) for code generation, Claude for planning/architecture guidance and the Figma MCP workflow
-Time spent: Approximately 10 hours. Prioritized core functionality (auth, CRUD, homepage) over full polish given the time constraint. Not yet tested end-to-end.
